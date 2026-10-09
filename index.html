@@ -151,6 +151,26 @@
         @keyframes intro-reveal { from { opacity:0; transform:translateY(28px) scale(.94); letter-spacing:.35em; } to { opacity:1; transform:translateY(0) scale(1); letter-spacing:.2em; } }
         @keyframes intro-fade { from { opacity:0; transform:translateY(10px); } to { opacity:.7; transform:translateY(0); } }
         @media(prefers-reduced-motion:reduce) { #brand-intro { display:none; } .intro-wordmark,.intro-caption { animation:none; } }
+
+        /* Native-app-like mobile polish without changing the desktop layout */
+        html { -webkit-text-size-adjust:100%; }
+        body { min-width:320px; overflow-x:clip; overscroll-behavior-y:contain; }
+        button, a { -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
+        img, video { max-width:100%; }
+        #mobile-menu { max-height:calc(100dvh - 76px); overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; }
+        @media(max-width:767px) {
+            header { padding-top:env(safe-area-inset-top,0px); }
+            nav { min-height:64px; }
+            #mobile-menu { max-height:calc(100dvh - 64px - env(safe-area-inset-top,0px)); }
+            .mobile-link { display:flex; align-items:center; min-height:48px; }
+            body.mobile-menu-open { overflow:hidden; }
+            .hide-scrollbar { scroll-snap-type:x proximity; -webkit-overflow-scrolling:touch; overscroll-behavior-x:contain; }
+            .hide-scrollbar > * { scroll-snap-align:start; }
+            input, select, textarea { font-size:max(16px,1em); }
+        }
+        @media(max-width:359px) {
+            nav { padding-left:16px!important; padding-right:16px!important; }
+        }
     </style>
 </head>
 <body class="bg-background text-charcoal font-sans selection:bg-charcoal selection:text-white relative min-h-screen overflow-x-hidden">
@@ -677,11 +697,14 @@
             if (btn && menu) {
                 btn.addEventListener('click', () => {
                     const isOpen = menu.classList.toggle('hidden') === false;
+                    document.body.classList.toggle('mobile-menu-open', isOpen);
                     btn.setAttribute('aria-expanded', String(isOpen));
                     btn.setAttribute('aria-label', isOpen ? 'Close navigation menu' : 'Open navigation menu');
                 });
+                document.addEventListener('keydown', (event) => { if (event.key === 'Escape') { menu.classList.add('hidden'); document.body.classList.remove('mobile-menu-open'); btn.setAttribute('aria-expanded', 'false'); btn.setAttribute('aria-label', 'Open navigation menu'); } });
+                window.addEventListener('resize', () => { if (window.innerWidth >= 768) { menu.classList.add('hidden'); document.body.classList.remove('mobile-menu-open'); btn.setAttribute('aria-expanded', 'false'); } }, {passive:true});
                 mobileLinks.forEach(link => {
-                    link.addEventListener('click', () => { menu.classList.add('hidden'); btn.setAttribute('aria-expanded', 'false'); btn.setAttribute('aria-label', 'Open navigation menu'); });
+                    link.addEventListener('click', () => { document.body.classList.remove('mobile-menu-open'); menu.classList.add('hidden'); btn.setAttribute('aria-expanded', 'false'); btn.setAttribute('aria-label', 'Open navigation menu'); });
                 });
             }
 
