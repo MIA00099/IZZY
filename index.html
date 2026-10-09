@@ -171,6 +171,29 @@
         @media(max-width:359px) {
             nav { padding-left:16px!important; padding-right:16px!important; }
         }
+
+        /* JAGNE-inspired editorial refinement: lightweight, responsive, brand-safe */
+        :root { --editorial-ease: cubic-bezier(.22,1,.36,1); }
+        header { transition: background-color .35s ease, box-shadow .35s ease, border-color .35s ease; }
+        header.editorial-scrolled { background: rgba(249,249,248,.96); box-shadow: 0 8px 30px rgba(17,17,17,.055); }
+        main > section:first-child h1 { text-wrap: balance; letter-spacing: -.045em; }
+        #collection .fashion-card { overflow: hidden; isolation: isolate; }
+        #collection .fashion-card img { transition: transform 1.1s var(--editorial-ease), filter .7s ease; }
+        @media (hover:hover) and (prefers-reduced-motion:no-preference) {
+            #collection .fashion-card:hover img { transform: scale(1.045); }
+            nav a:not([href^="tel:"]) { transition: opacity .25s ease, color .25s ease; }
+            nav a:not([href^="tel:"]):hover { opacity: .65; }
+        }
+        #mobile-menu { scrollbar-width: thin; }
+        @media(max-width:767px) {
+            #mobile-menu:not(.hidden) { height: calc(100dvh - 64px - env(safe-area-inset-top,0px)); max-height: none; padding: clamp(28px,7vh,64px) 8vw; }
+            #mobile-menu .mobile-link { font-family: 'Playfair Display', Georgia, serif; font-size: clamp(1.55rem,7vw,2.6rem); line-height: 1.2; letter-spacing: -.025em; text-transform: none; padding-block: .65rem; border-bottom: 1px solid rgba(17,17,17,.12); }
+            #collection .fashion-card { scroll-snap-align: center; }
+            main > section:first-child h1 { letter-spacing: -.035em; }
+        }
+        @media(prefers-reduced-motion:reduce) {
+            header, #collection .fashion-card img { transition: none !important; }
+        }
     </style>
 </head>
 <body class="bg-background text-charcoal font-sans selection:bg-charcoal selection:text-white relative min-h-screen overflow-x-hidden">
@@ -777,6 +800,20 @@
                 }
             }, { passive: true });
         });
+    </script>
+
+    <script>
+      /* Header reacts to scroll without introducing animation libraries. */
+      (() => {
+        const header = document.querySelector('header');
+        if (!header) return;
+        let scheduled = false;
+        const update = () => { header.classList.toggle('editorial-scrolled', window.scrollY > 24); scheduled = false; };
+        window.addEventListener('scroll', () => {
+          if (!scheduled) { scheduled = true; requestAnimationFrame(update); }
+        }, { passive: true });
+        update();
+      })();
     </script>
 </body>
 </html>
